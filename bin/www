@@ -1,0 +1,128 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var app = require('../app');
+var debug = require('debug')('cluster6:server');
+var http = require('http');
+var Twitter = require('twitter');
+var twit = new Twitter({
+  consumer_key: 'fpPN2l4dxhKJ72oa7dGKcOWop',
+  consumer_secret: 'XVX1jSjiQ5ME7SCHd6ix8rNlBWDANMCyIEIE4e1dknoXpzlkh9',
+  access_token_key: '303100403-zt43QosXx50ySkHYOKlkYLIArZXzgLa4r8iTnMV1',
+  access_token_secret: '5TnZQFKo7rjZRCy2cXgkpQg0sptLHAafTt5zlbdg6QGdq'
+});
+
+/**
+ * Get port from environment and store in Express.
+ */
+
+var port = normalizePort(process.env.PORT || '8000');
+app.set('port', port);
+console.error('Server starts at port ' + port);
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+var io = require("socket.io").listen(server);
+var stream = null
+// Create web sockets connection.
+io.sockets.on('connection', function (socket) {
+  socket.on("start tweets", function() {
+    if(stream === null) {
+      //Connect to twitter stream passing in filter for entire world.
+      twit.stream('statuses/filter', {'locations':'144.6021,-38.5396,145.5936,-36.9938'}, function(s) {
+          stream = s;
+          stream.on('data', function(data) {
+              // Does the JSON result have coordinates
+              if (data.coordinates && data.place.name == "Melbourne"){
+                if (data.coordinates !== null){
+                  //If so then build up some nice json and send out to web sockets
+                  var outputPoint = {"user_name": data.user.screen_name,"text": data.text,"create_at": data.created_at, "lat": data.coordinates.coordinates[0],"lng": data.coordinates.coordinates[1]};
+                  socket.broadcast.emit("twitter", outputPoint);
+                  //Send out to web sockets channel.
+                  socket.emit('twitter', outputPoint);
+                  console.log(data);
+                }
+              }
+          });
+      });
+    }
+  });
+  // Emits signal to the client telling them that the
+  // they are connected and can start receiving Tweets
+  socket.emit("connected");
+});
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}

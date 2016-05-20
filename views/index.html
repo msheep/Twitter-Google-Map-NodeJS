@@ -1,0 +1,111 @@
+<!-- PAGE CONTENT WRAPPER -->
+<div class="page-content-wrap">
+    
+    <!-- START WIDGETS -->                    
+    <div class="row">
+        <div class="col-md-4">
+            <div class="widget widget-default widget-item-icon">
+                <div class="widget-item-left">
+                    <span class="fa fa-twitter"></span>
+                </div>                             
+                <div class="widget-data">
+                    <div class="widget-int num-count"><%= total %></div>
+                    <div class="widget-title">Total Number of Twitters in CouchDB</div>
+                </div>  
+            </div>   
+        </div>
+
+        <div class="col-md-4">
+            <div class="widget widget-default widget-item-icon">
+                <div class="widget-item-left">
+                    <span class="fa <% if(polarity_avg > 0){ %>fa-smile-o <% }else if(polarity_avg < 0) { %>fa-frown-o<% }else{ %> fa-meh-o <% } %>" ></span>
+                </div>
+                <div class="widget-data">
+                    <div class="widget-int num-count"><%= polarity_avg %></div>
+                    <div class="widget-title">Average<br/>Polarity</div>
+                </div>                          
+            </div>      
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="panel-title-box">
+                        <h3>Compare Sentiments</h3>
+                    </div>
+                </div>
+                <div class="panel-body padding-0">
+                    <div class="chart-holder" id="compare_sentiment" style="height: 200px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-title">                    
+        <h2><span class="fa fa-users"></span> Group Information <small><%= members.length%> members</small></h2>
+    </div>
+    <div class="row">
+        <% members.forEach(function(member){ %>
+        <div class="col-md-3">
+            <!-- CONTACT ITEM -->
+            <div class="panel panel-default">
+                <div class="panel-body profile">
+                    <div class="profile-image">
+                        <img src="img/<%= member.image%>" alt="Nadia Ali"/>
+                    </div>
+                    <div class="profile-data">
+                        <div class="profile-data-name"><%= member.name%></div>
+                        <div class="profile-data-title"><%= member.studentno%></div>
+                    </div>
+                    <div class="profile-controls">
+                        <a href="#" class="profile-control-left"><span class="fa fa-info"></span></a>
+                        <a href="#" class="profile-control-right"><span class="fa fa-phone"></span></a>
+                    </div>
+                </div>                                
+                <div class="panel-body">                                    
+                    <div class="contact-info">
+                        <p><small>Email</small><br/><%= member.email%></p>
+                        <p><small>Description</small><br/><%= member.desc%></p>                                   
+                    </div>
+                </div>                                
+            </div>
+            
+            <!-- END CONTACT ITEM -->
+        </div>
+        <% }); %>
+    </div>
+    <!-- END WIDGETS -->  
+</div>
+<!-- END PAGE CONTENT WRAPPER -->    
+
+<script>
+
+Morris.Donut({
+    element: 'compare_sentiment',
+    data: [
+        <% sentiment.forEach(function(type){ %>
+        {label: "<%=type[0]%>", value: <%=type[1]%>},
+        <% }); %>
+    ],
+    colors: ['#33414E', '#1caf9a', '#FEA223'],
+    resize: true
+});
+// $(function(){
+//     $.ajax({
+//         type: 'GET',
+//         url: couchdb + '/twitter/_design/polarity/_view/polarity_sum',
+//         contentType: 'application/json; charset=utf-8',
+//         data: {reduce: true},
+//         dataType: 'json',
+//         cache: false,
+//         success: function(result){
+//             alert(result);
+//         },
+//         error: function(result){
+//             alert(result.status + ' ' + result.statusText);
+//         }
+//     });
+// })
+</script>                            

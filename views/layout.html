@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>        
+        <!-- META SECTION -->
+        <title><%= title%></title>            
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="author" content="jing yang">
+        
+        <link href="//abs.twimg.com/favicons/favicon.ico" rel="shortcut icon" type="image/x-icon">      
+        <link rel="stylesheet" type="text/css" id="theme" href="css/theme-default.css"/>
+        <!-- START PLUGINS -->
+        <script type="text/javascript" src="js/plugins/jquery/jquery.min.js"></script>
+        <script type="text/javascript" src="js/plugins/jquery/jquery-ui.min.js"></script>
+        <script type="text/javascript" src="js/plugins/bootstrap/bootstrap.min.js"></script>
+        <script type="text/javascript" src="js/plugins/mcustomscrollbar/jquery.mCustomScrollbar.min.js"></script>
+        <script type="text/javascript" src="js/plugins/scrolltotop/scrolltopcontrol.js"></script>
+        <script type="text/javascript" src="js/plugins/owl/owl.carousel.min.js"></script> 
+        <script type="text/javascript" src="js/plugins/morris/raphael-min.js"></script>   
+        <script type="text/javascript" src="js/plugins/morris/morris.min.js"></script> 
+        <script type='text/javascript' src='js/plugins/icheck/icheck.min.js'></script>
+        <script type="text/javascript" src="js/plugins/datatables/jquery.dataTables.min.js"></script>     
+        <script type="text/javascript" src="js/plugins.js"></script>        
+        <script type="text/javascript" src="js/actions.js"></script> 
+        <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>     
+        <!-- END PLUGINS -->                                 
+    </head>
+    <body>
+        <!-- START PAGE CONTAINER -->
+        <div class="page-container">
+            
+            <!-- START PAGE SIDEBAR -->
+            <div class="page-sidebar">
+                <!-- START X-NAVIGATION -->
+                <ul class="x-navigation">
+                    <li class="xn-logo">
+                        <a href="index.html"><%= title%></a>
+                        <a href="#" class="x-navigation-control"></a>
+                    </li>
+                    <li class="xn-profile">
+                        <div class="profile">
+                            <div class="profile-image">
+                                <img src="img/logo.png" alt="John Doe"/>
+                            </div>
+                            <div class="profile-data">
+                                <div class="profile-data-name">Team 16</div>
+                            </div>
+                        </div>                                                                        
+                    </li>
+                    <li class="xn-title">Navigation</li>
+                    <li <% if (breadcrumb == 'Dashboard') { %> class="active" <% } %> >
+                        <a href="/"><span class="fa fa-desktop"></span> <span class="xn-text">Dashboard</span></a>
+                    </li>   
+<!-- 
+                    <li class="xn-openable">
+                        <a href="#"><span class="fa fa-file-text-o"></span> <span class="xn-text">Topics</span></a>
+                        <ul>
+                            <li <% if (breadcrumb == 'Politics') { %> class="active" <% } %>>
+                                <a href="/politics">Politics</a>
+                            </li>
+                            <li <% if (breadcrumb == 'Footy') { %> class="active" <% } %>>
+                                <a href="/footy">Footy</a>
+                            </li>
+                        </ul>
+                    </li> -->
+
+                    <li <% if (breadcrumb == 'Politics') { %> class="active" <% } %>>
+                        <a href="/politics"><span class="fa fa-legal"></span> <span class="xn-text">Politics</span></a>
+                    </li>
+
+                    <li <% if (breadcrumb == 'Footy') { %> class="active" <% } %>>
+                        <a href="/footy"><span class="fa fa-trophy"></span> <span class="xn-text">Footy</span></a>
+                    </li>
+
+                   <!--  <li <% if (breadcrumb == 'Group') { %> class="active" <% } %>>
+                        <a href="/group"><span class="fa fa-group"></span> <span class="xn-text">Group</span></a>
+                    </li>                  
+ -->
+                </ul>
+                <!-- END X-NAVIGATION -->
+            </div>
+            <!-- END PAGE SIDEBAR -->
+            
+            <!-- PAGE CONTENT -->
+            <div class="page-content"> 
+              <!-- START BREADCRUMB -->
+              <ul class="breadcrumb">
+                  <!-- TOGGLE NAVIGATION -->
+                  <li class="xn-icon-button">
+                      <a href="#" class="x-navigation-minimize"><span class="fa fa-dedent"></span></a>
+                  </li>
+                  <!-- END TOGGLE NAVIGATION -->
+                  <li><a href="#">Home</a></li>                    
+                  <li class="active"><%= breadcrumb%></li>
+              </ul>
+              <!-- END BREADCRUMB --> 
+              <%- body %>          
+            </div>
+        </div> 
+        <script type='text/javascript' src='js/plugins/noty/jquery.noty.js'></script>
+        <script type='text/javascript' src='js/plugins/noty/layouts/bottomRight.js'></script>            
+        <script type='text/javascript' src='js/plugins/noty/themes/default.js'></script>
+        <script>
+        $(function(){
+            // Storage for WebSocket connections
+            var socket = io.connect('http://localhost:8000'); 
+
+            // This listens on the "twitter-steam" channel and data is 
+            // received everytime a new tweet is receieved.
+            socket.on('twitter', function (data) {
+                noty({
+                    text: "<div>From: "+data.user_name+"</div><div>Text: "+data.text+"</div><div>Location: "+ data.lat +","+ data.lng+"</div><div>Created at: "+ new Date(data.create_at)+"<div>",
+                    layout: 'bottomRight', 
+                    animation: { 
+                        open: {height: 'toggle'},
+                        close: {height: 'toggle'},
+                        easing: 'swing',
+                        speed: 500 
+                    },
+                    timeout: 4000,
+                    maxVisible: 1
+                }) 
+
+            });
+            // Listens for a success response from the server to 
+            // say the connection was successful.
+            socket.on("connected", function(r) {
+                //Now that we are connected to the server let's tell 
+                //the server we are ready to start receiving tweets.
+                socket.emit("start tweets");
+            });
+          
+        })
+        </script>      
+    </body>
+</html>
+
+
+
+
+
+

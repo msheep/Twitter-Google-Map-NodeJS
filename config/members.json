@@ -1,0 +1,28 @@
+[{
+  "name": "Tim",
+  "email": "tiredale@student.unimelb.edu.au",
+  "studentno": 704118,
+  "desc": "Overexposed to bash...",
+  "image": "tim.jpg"
+},
+{
+  "name": "Noble Mathew",
+  "email": "noblem@student.unimelb.edu.au",
+  "studentno": 753380,
+  "desc": "BLAH!",
+  "image": "noble.jpg"
+},
+{
+  "name": "Nur",
+  "email": "nsaamri@student.unimelb.edu.au",
+  "studentno": 673653,
+  "desc": "cheers!",
+  "image": "nur.jpg"
+},
+{
+  "name": "JING YANG",
+  "email": "yangj4@student.unimelb.edu.au",
+  "studentno": 715861,
+  "desc": "hahahahahahaha",
+  "image": "yang.jpg"
+}]
